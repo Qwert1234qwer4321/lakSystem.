@@ -1,0 +1,191 @@
+#!/usr/bin/env bash
+set -e
+
+# Scaffold Next.js + Tailwind project for LakSystem landing
+
+# 1. Create project directory and enter it
+PROJECT_NAME="laksystem-landing"
+mkdir -p "$PROJECT_NAME"
+cd "$PROJECT_NAME"
+
+# 2. Create package.json
+cat > package.json << 'EOF'
+{
+  "name": "laksystem-landing",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "13.5.2",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "framer-motion": "^10.12.16"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.14",
+    "postcss": "^8.4.21",
+    "tailwindcss": "^3.4.7"
+  }
+}
+EOF
+
+# 3. Tailwind config
+cat > tailwind.config.js << 'EOF'
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "./pages/**/*.{js,jsx}",
+    "./components/**/*.{js,jsx}"
+  ],
+  theme: {
+    extend: {
+      colors: {
+        primary: "#005BBB",
+        accent: "#FFD500"
+      },
+      fontFamily: {
+        sans: ["Inter", "sans-serif"],
+        display: ["Poppins", "sans-serif"]
+      }
+    }
+  },
+  plugins: []
+}
+EOF
+
+# 4. PostCSS config
+cat > postcss.config.js << 'EOF'
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+EOF
+
+# 5. Global CSS
+mkdir -p styles
+cat > styles/globals.css << 'EOF'
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* custom */
+html {
+  scroll-behavior: smooth;
+}
+EOF
+
+# 6. _app.js
+mkdir -p pages
+cat > pages/_app.js << 'EOF'
+import "../styles/globals.css";
+
+export default function MyApp({ Component, pageProps }) {
+  return <Component {...pageProps} />;
+}
+EOF
+
+# 7. index.js
+cat > pages/index.js << 'EOF'
+import NavBar from "../components/NavBar";
+import Hero from "../components/Hero";
+
+export default function Home() {
+  return (
+    <>
+      <NavBar />
+      <main className="pt-20">
+        <Hero />
+        {/* TODO: add Services, Process, Testimonials, Contact */}
+      </main>
+    </>
+  );
+}
+EOF
+
+# 8. NavBar component
+mkdir -p components
+cat > components/NavBar.js << 'EOF'
+import Link from "next/link";
+import { motion } from "framer-motion";
+
+export default function NavBar() {
+  return (
+    <motion.nav 
+      className="fixed top-0 w-full bg-white/80 backdrop-blur-md shadow-md z-50"
+      initial={{ y: -50, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className="container mx-auto flex items-center justify-between p-4">
+        <Link href="/">
+          <a className="text-2xl font-bold text-primary">LakSystem</a>
+        </Link>
+        <ul className="hidden md:flex space-x-6 font-medium">
+          <li><Link href="#services"><a>Послуги</a></Link></li>
+          <li><Link href="#process"><a>Процес</a></Link></li>
+          <li><Link href="#contact"><a>Контакти</a></Link></li>
+        </ul>
+        <button className="md:hidden">
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2"
+               viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round"
+                  d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
+      </div>
+    </motion.nav>
+  );
+}
+EOF
+
+# 9. Hero component
+cat > components/Hero.js << 'EOF'
+import { motion } from "framer-motion";
+
+export default function Hero() {
+  return (
+    <section className="h-screen bg-cover bg-center relative" style={{ backgroundImage: "url('/hero-bg.jpg')" }}>
+      <div className="absolute inset-0 bg-black/50"></div>
+      <div className="container mx-auto h-full flex flex-col justify-center items-start text-white relative z-10 px-4">
+        <motion.h1 
+          className="text-5xl md:text-6xl font-display font-bold mb-6"
+          initial={{ x: -100, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          Робота за кордоном без турбот
+        </motion.h1>
+        <motion.p 
+          className="text-lg md:text-xl mb-8 max-w-xl"
+          initial={{ x: -100, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ delay: 0.5 }}
+        >
+          Допомагаємо легально влаштуватися в країнах ЄС. Повний супровід на всіх етапах.
+        </motion.p>
+        <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.7 }}>
+          <a href="#contact" className="inline-block bg-accent text-black font-semibold rounded-lg px-6 py-3 mr-4 hover:bg-accent/90">
+            Залишити заявку
+          </a>
+          <a href="#services" className="inline-block border border-white rounded-lg px-6 py-3 hover:bg-white/20">
+            Дізнатись більше
+          </a>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+EOF
+
+echo "✅ Project scaffold created!"
+echo "Next steps:"
+echo "  cd $PROJECT_NAME"
+echo "  npm install"
+echo "  npm run dev"
